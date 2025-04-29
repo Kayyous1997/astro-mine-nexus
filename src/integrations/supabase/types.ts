@@ -9,13 +9,321 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      earnings: {
+        Row: {
+          id: string
+          referral_earnings: number | null
+          task_earnings: number | null
+          total_earnings: number | null
+          total_mined: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          referral_earnings?: number | null
+          task_earnings?: number | null
+          total_earnings?: number | null
+          total_mined?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          referral_earnings?: number | null
+          task_earnings?: number | null
+          total_earnings?: number | null
+          total_mined?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "earnings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mining_sessions: {
+        Row: {
+          active: boolean | null
+          end_time: string | null
+          id: string
+          mining_rate: number | null
+          start_time: string
+          tokens_earned: number | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          end_time?: string | null
+          id?: string
+          mining_rate?: number | null
+          start_time?: string
+          tokens_earned?: number | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          end_time?: string | null
+          id?: string
+          mining_rate?: number | null
+          start_time?: string
+          tokens_earned?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mining_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id: string
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          id: string
+          referral_code: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          referral_code?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          referral_code?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referred_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          referred_user_id: string
+          referrer_id: string
+          rewarded: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          referred_user_id: string
+          referrer_id: string
+          rewarded?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          referred_user_id?: string
+          referrer_id?: string
+          rewarded?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referred_users_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referred_users_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          active: boolean | null
+          description: string
+          id: string
+          name: string
+          requirements: Json | null
+          reward: number
+          type: string
+        }
+        Insert: {
+          active?: boolean | null
+          description: string
+          id?: string
+          name: string
+          requirements?: Json | null
+          reward: number
+          type: string
+        }
+        Update: {
+          active?: boolean | null
+          description?: string
+          id?: string
+          name?: string
+          requirements?: Json | null
+          reward?: number
+          type?: string
+        }
+        Relationships: []
+      }
+      user_checkins: {
+        Row: {
+          checkin_date: string
+          created_at: string | null
+          id: string
+          rewarded: boolean | null
+          streak_count: number | null
+          user_id: string
+        }
+        Insert: {
+          checkin_date?: string
+          created_at?: string | null
+          id?: string
+          rewarded?: boolean | null
+          streak_count?: number | null
+          user_id: string
+        }
+        Update: {
+          checkin_date?: string
+          created_at?: string | null
+          id?: string
+          rewarded?: boolean | null
+          streak_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_checkins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_tasks: {
+        Row: {
+          completed_at: string | null
+          id: string
+          rewarded: boolean | null
+          status: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          rewarded?: boolean | null
+          status?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          rewarded?: boolean | null
+          status?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      complete_task: {
+        Args: { _task_id: string }
+        Returns: Json
+      }
+      daily_checkin: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_leaderboard: {
+        Args: { _limit?: number; _offset?: number }
+        Returns: {
+          rank: number
+          user_id: string
+          username: string
+          avatar_url: string
+          total_earnings: number
+        }[]
+      }
+      get_referral_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_user_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      process_mining_session: {
+        Args: { _session_id: string }
+        Returns: Json
+      }
+      start_mining: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      stop_mining: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

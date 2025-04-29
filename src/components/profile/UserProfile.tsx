@@ -7,29 +7,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-
-// Sample user data
-const userData = {
-  username: "CosmicMiner",
-  email: "cosmic@example.com",
-  walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-  avatar: "",
-  initials: "CM",
-  joinDate: "2023-05-15",
-  totalMined: 324.56,
-};
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function UserProfile() {
+  const { signOut } = useAuth();
+  const { userStats, loading } = useUserData();
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   
   const copyWalletAddress = async () => {
+    if (!userStats?.user_id) return;
+    
     try {
-      await navigator.clipboard.writeText(userData.walletAddress);
+      await navigator.clipboard.writeText(userStats.user_id);
       setCopied(true);
       toast({
         title: "Address copied!",
-        description: "Wallet address has been copied to clipboard.",
+        description: "User ID has been copied to clipboard.",
       });
       
       setTimeout(() => setCopied(false), 2000);
@@ -42,13 +37,27 @@ export default function UserProfile() {
     }
   };
   
-  const handleLogout = () => {
-    toast({
-      title: "Logging out...",
-      description: "You have been successfully logged out.",
-    });
-    // In a real app, would redirect to login or home
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <Card className="bg-dark-card border-white/10">
+          <CardContent className="pt-6">
+            <div className="flex justify-center p-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-blue"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
   return (
     <div className="max-w-3xl mx-auto">
@@ -64,17 +73,17 @@ export default function UserProfile() {
           </div>
           <div className="flex flex-col items-center">
             <Avatar className="h-24 w-24 mb-4 bg-dark-accent">
-              <AvatarImage src={userData.avatar} />
-              <AvatarFallback className="text-2xl">{userData.initials}</AvatarFallback>
+              <AvatarImage src={userStats?.avatar_url || ""} />
+              <AvatarFallback className="text-2xl">{userStats?.username?.slice(0, 2).toUpperCase() || "??"}</AvatarFallback>
             </Avatar>
-            <CardTitle className="text-2xl">{userData.username}</CardTitle>
-            <CardDescription className="text-gray-400">{userData.email}</CardDescription>
+            <CardTitle className="text-2xl">{userStats?.username}</CardTitle>
+            <CardDescription className="text-gray-400">Miner ID: {userStats?.user_id.slice(0, 8)}...</CardDescription>
             <div className="mt-2 text-xs text-gray-400">
-              Member since {new Date(userData.joinDate).toLocaleDateString('en-US', { 
+              Member since {userStats ? new Date(userStats.created_at).toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'short', 
                 day: 'numeric' 
-              })}
+              }) : "N/A"}
             </div>
           </div>
         </CardHeader>
@@ -82,10 +91,10 @@ export default function UserProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-400">Wallet Address</h3>
+                <h3 className="text-sm font-medium text-gray-400">User ID</h3>
                 <div className="flex items-center space-x-2">
                   <div className="bg-dark-bg border border-white/10 rounded-lg px-3 py-2 text-sm truncate flex-1">
-                    {userData.walletAddress}
+                    {userStats?.user_id || "Loading..."}
                   </div>
                   <Button
                     variant="outline"
@@ -103,11 +112,11 @@ export default function UserProfile() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-dark-bg border border-white/10 rounded-lg p-4">
                     <div className="text-sm text-gray-400">Total Mined</div>
-                    <div className="mt-1 text-xl font-semibold">{userData.totalMined.toFixed(2)}</div>
+                    <div className="mt-1 text-xl font-semibold">{userStats?.total_mined.toFixed(2) || "0.00"}</div>
                   </div>
                   <div className="bg-dark-bg border border-white/10 rounded-lg p-4">
                     <div className="text-sm text-gray-400">Mining Rate</div>
-                    <div className="mt-1 text-xl font-semibold">0.043 /hr</div>
+                    <div className="mt-1 text-xl font-semibold">{userStats?.mining_rate.toFixed(3) || "0.000"}/hr</div>
                   </div>
                 </div>
               </div>

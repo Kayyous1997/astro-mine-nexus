@@ -1,134 +1,97 @@
 
-import { Trophy } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Trophy, Medal } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Sample leaderboard data
-const leaderboardData = [
-  {
-    id: 1,
-    rank: 1,
-    username: "CosmoMiner",
-    tokens: 156.32,
-    avatar: "",
-    initials: "CM",
-  },
-  {
-    id: 2,
-    rank: 2,
-    username: "NebulaNomad",
-    tokens: 142.87,
-    avatar: "",
-    initials: "NN",
-  },
-  {
-    id: 3,
-    rank: 3,
-    username: "GalacticHarvester",
-    tokens: 128.45,
-    avatar: "",
-    initials: "GH",
-  },
-  {
-    id: 4,
-    rank: 4,
-    username: "VoidExcavator",
-    tokens: 115.21,
-    avatar: "",
-    initials: "VE",
-  },
-  {
-    id: 5,
-    rank: 5,
-    username: "StarDustCollector",
-    tokens: 109.76,
-    avatar: "",
-    initials: "SD",
-  },
-  {
-    id: 6,
-    rank: 6,
-    username: "AstroProspector",
-    tokens: 98.33,
-    avatar: "",
-    initials: "AP",
-  },
-  {
-    id: 7,
-    rank: 7,
-    username: "VoidDigger",
-    tokens: 87.12,
-    avatar: "",
-    initials: "VD",
-  },
-];
+import { LeaderboardService } from "@/services/LeaderboardService";
+import { LeaderboardEntry } from "@/integrations/supabase/generated-types";
 
 export default function Leaderboard() {
-  const getRankStyles = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return "bg-[#FFD700]/10 border-[#FFD700]/30 text-[#FFD700]";
-      case 2:
-        return "bg-[#C0C0C0]/10 border-[#C0C0C0]/30 text-[#C0C0C0]";
-      case 3:
-        return "bg-[#CD7F32]/10 border-[#CD7F32]/30 text-[#CD7F32]";
-      default:
-        return "bg-dark-bg border-white/5 text-gray-400";
-    }
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLeaderboard = async () => {
+      try {
+        setLoading(true);
+        const data = await LeaderboardService.getLeaderboard();
+        setLeaderboardData(data);
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLeaderboard();
+  }, []);
+
+  const getInitials = (username: string): string => {
+    return username.slice(0, 2).toUpperCase();
   };
 
-  const getAvatarStyles = (rank: number) => {
+  const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return "bg-gradient-to-br from-amber-300 to-yellow-500 text-yellow-900";
+        return <Trophy className="h-4 w-4 text-yellow-500" />;
       case 2:
-        return "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-800";
+        return <Trophy className="h-4 w-4 text-gray-400" />;
       case 3:
-        return "bg-gradient-to-br from-amber-700 to-amber-600 text-amber-100";
+        return <Trophy className="h-4 w-4 text-amber-700" />;
       default:
-        return "bg-dark-accent text-gray-300";
+        return <span className="text-xs">{rank}</span>;
     }
   };
 
   return (
-    <div className="bg-dark-card rounded-lg border border-white/10 p-5">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-cyber-purple" />
-          <h3 className="font-semibold">Top Miners</h3>
-        </div>
-        <button className="text-xs text-cyber-blue hover:underline">
-          View All
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {leaderboardData.map((user) => (
-          <div
-            key={user.id}
-            className={`flex items-center justify-between p-3 rounded-lg border ${getRankStyles(
-              user.rank
-            )}`}
-          >
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-7 h-7">
-                {user.rank <= 3 ? (
-                  <span className="text-lg font-bold">{user.rank}</span>
-                ) : (
-                  <span className="text-sm">{user.rank}</span>
-                )}
-              </div>
-              <Avatar className={`h-8 w-8 ${getAvatarStyles(user.rank)}`}>
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback>{user.initials}</AvatarFallback>
-              </Avatar>
-              <div className="text-sm font-medium">{user.username}</div>
-            </div>
-            <div className="font-mono text-sm font-medium">
-              {user.tokens.toFixed(2)}
-            </div>
+    <Card className="bg-dark-card border-white/10">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center">
+          <Medal className="mr-2 h-5 w-5 text-cyber-green" />
+          Leaderboard
+        </CardTitle>
+        <CardDescription>Top miners by earnings</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="flex justify-center p-6">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyber-blue"></div>
           </div>
-        ))}
-      </div>
-    </div>
+        ) : (
+          <div className="space-y-2">
+            {leaderboardData.map((entry) => (
+              <div 
+                key={entry.user_id} 
+                className={`flex items-center p-2 rounded-md ${
+                  entry.rank <= 3 ? "bg-dark-bg/80" : ""
+                }`}
+              >
+                <div className="w-6 h-6 flex items-center justify-center mr-3">
+                  {getRankIcon(entry.rank)}
+                </div>
+                <Avatar className="h-7 w-7 mr-3">
+                  <AvatarImage src={entry.avatar_url || ""} />
+                  <AvatarFallback className="text-xs bg-dark-accent">
+                    {getInitials(entry.username)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 truncate">
+                  {entry.username}
+                </div>
+                <div className="font-medium">
+                  {entry.total_earnings.toFixed(2)}
+                </div>
+              </div>
+            ))}
+
+            {leaderboardData.length === 0 && (
+              <div className="text-center py-6 text-gray-400">
+                No miners on the leaderboard yet
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

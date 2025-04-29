@@ -1,18 +1,17 @@
 
-import { useState } from "react";
-import { Check, Copy, Share2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, Copy, Share2, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { useUserData } from "@/hooks/useUserData";
 
-interface ReferralLinkProps {
-  code?: string;
-}
-
-export default function ReferralLink({ code = "astrominer14763" }: ReferralLinkProps) {
+export default function ReferralLink() {
+  const { referralStats, loading } = useUserData();
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-  const referralLink = `https://astromine.com/ref/${code}`;
+  
+  const referralLink = referralStats?.referral_url || "https://astromine.com/ref/loading...";
   
   const copyToClipboard = async () => {
     try {
@@ -54,6 +53,18 @@ export default function ReferralLink({ code = "astrominer14763" }: ReferralLinkP
     }
   };
 
+  if (loading) {
+    return (
+      <Card className="bg-dark-card border-white/10">
+        <CardContent className="p-6">
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-blue"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-dark-card border-white/10">
       <CardContent className="p-6">
@@ -82,15 +93,17 @@ export default function ReferralLink({ code = "astrominer14763" }: ReferralLinkP
         {/* QR code placeholder */}
         <div className="mt-6 flex justify-center">
           <div className="w-32 h-32 bg-white p-2 rounded-lg">
-            <div className="w-full h-full bg-dark-bg flex items-center justify-center text-xs text-gray-400">
-              QR Code
+            <div className="w-full h-full bg-dark-bg flex items-center justify-center text-xs text-gray-400 flex-col">
+              <QrCode className="h-8 w-8 mb-1 opacity-50" />
+              <span>QR Code</span>
+              <span className="text-[10px] mt-1">Coming Soon</span>
             </div>
           </div>
         </div>
         
         <div className="mt-6 flex justify-center">
-          <Button className="bg-gradient-to-r from-cyber-blue to-cyber-purple hover:opacity-90 transition-opacity">
-            Download QR
+          <Button className="bg-gradient-to-r from-cyber-blue to-cyber-purple hover:opacity-90 transition-opacity" disabled>
+            Download QR (Soon)
           </Button>
         </div>
       </CardContent>
