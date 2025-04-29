@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Bell, User } from "lucide-react";
+import { Menu, X, Bell, LogOut } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,24 +14,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
   
-  // Mock user - would come from authentication context in a real app
-  const user = {
-    isLoggedIn: false,
-    name: "User",
-    avatar: "",
-    initials: "U",
-  };
-
   const handleNotification = () => {
     toast({
       title: "No new notifications",
       description: "Check back later for updates!",
     });
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user) return "U";
+    if (user.user_metadata?.username) {
+      return user.user_metadata.username.substring(0, 1).toUpperCase();
+    }
+    return user.email?.substring(0, 1).toUpperCase() || "U";
   };
 
   return (
@@ -61,7 +68,7 @@ export default function Navbar() {
 
           {/* Right section */}
           <div className="flex items-center space-x-2">
-            {user.isLoggedIn ? (
+            {user ? (
               <>
                 <Button 
                   variant="ghost" 
@@ -78,9 +85,9 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="rounded-full h-9 w-9 p-0">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatar} />
+                        <AvatarImage src={user.user_metadata?.avatar_url || ""} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          {user.initials}
+                          {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -95,8 +102,9 @@ export default function Navbar() {
                       <Link to="/settings">Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/logout">Logout</Link>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Logout</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -154,7 +162,7 @@ export default function Navbar() {
               >
                 Referrals
               </Link>
-              {!user.isLoggedIn && (
+              {!user && (
                 <div className="flex flex-col sm:hidden space-y-2 pt-2">
                   <Button asChild variant="outline">
                     <Link to="/login">Login</Link>
