@@ -91,7 +91,10 @@ export default function DailyTasks() {
             <span className="text-xs text-gray-400">Daily Progress</span>
             <span className="text-xs font-medium">{completedCount}/{tasks.length} Tasks</span>
           </div>
-          <Progress value={progress} className="h-2 bg-white/10" indicatorClassName="bg-gradient-to-r from-cyber-blue to-cyber-purple" />
+          <Progress 
+            value={progress} 
+            className="h-2 bg-white/10 [&>div]:bg-gradient-to-r [&>div]:from-cyber-blue [&>div]:to-cyber-purple" 
+          />
         </div>
         
         <div className="space-y-3">
