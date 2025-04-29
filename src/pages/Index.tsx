@@ -1,14 +1,19 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import LandingPage from "./LandingPage";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const navigate = useNavigate();
+
+  // Automatically redirect to the landing page
+  useEffect(() => {
+    // In this case, we'll just render the LandingPage directly
+    // But you could also do a redirect if needed
+    // navigate('/landing');
+  }, [navigate]);
+
+  return <LandingPage />;
 };
 
 export default Index;
