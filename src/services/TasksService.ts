@@ -83,7 +83,12 @@ export const TasksService = {
       
       if (error) throw error;
       
-      return data?.status || 'pending';
+      // Ensure we only return the valid status types
+      if (data?.status === 'completed') {
+        return 'completed';
+      }
+      
+      return data?.status === 'pending' ? 'pending' : null;
     } catch (error: any) {
       console.error('Error getting task status:', error);
       return null;
