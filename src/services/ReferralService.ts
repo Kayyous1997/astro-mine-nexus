@@ -58,5 +58,19 @@ export const ReferralService = {
       console.error('Error getting referral code:', error);
       return null;
     }
+  },
+
+  // Subscribe to referral changes
+  subscribeToReferrals(callback: () => void) {
+    return supabase
+      .channel('referred_users_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'referred_users'
+      }, () => {
+        callback();
+      })
+      .subscribe();
   }
 };

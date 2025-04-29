@@ -80,10 +80,23 @@ export const useUserData = () => {
         TasksService.getUserTasks().then(setUserTasks);
       })
       .subscribe();
+      
+    const referralsSubscription = supabase
+      .channel('referrals-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'referred_users'
+      }, payload => {
+        // Refresh referral stats when they change
+        ReferralService.getReferralStats().then(setReferralStats);
+      })
+      .subscribe();
 
     return () => {
       supabase.removeChannel(userStatsSubscription);
       supabase.removeChannel(userTasksSubscription);
+      supabase.removeChannel(referralsSubscription);
     };
   }, [user]);
 
