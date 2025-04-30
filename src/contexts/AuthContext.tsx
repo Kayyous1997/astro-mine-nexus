@@ -1,15 +1,15 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, username?: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, username?: string, redirectTo?: string) => Promise<void>;
+  signIn: (email: string, password: string, redirectTo?: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -51,7 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, username?: string) => {
+  const signUp = async (email: string, password: string, username?: string, redirectTo?: string) => {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signUp({
@@ -60,7 +59,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         options: {
           data: {
             username: username || email.split('@')[0]
-          }
+          },
+          emailRedirectTo: redirectTo
         }
       });
 
@@ -71,9 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Please check your email for a verification link.",
       });
       
-      // In a real application, you might want to navigate to a verification screen
-      // For this demo, we'll navigate to the login page
-      navigate('/login');
+      // We no longer navigate here, it will be handled by the auth state change
     } catch (error: any) {
       toast({
         title: "Error creating account",
@@ -86,12 +84,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, redirectTo?: string) => {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          redirectTo: redirectTo
+        }
       });
 
       if (error) throw error;
@@ -101,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "You've successfully logged in.",
       });
       
-      navigate('/dashboard');
+      // We no longer navigate here, it will be handled by the component using this hook
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -126,7 +127,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "You've been successfully logged out.",
       });
       
-      navigate('/');
+      // We no longer navigate here, it will be handled by auth state change
     } catch (error: any) {
       toast({
         title: "Error logging out",

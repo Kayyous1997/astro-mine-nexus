@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -33,11 +32,18 @@ const forgotPasswordSchema = z.object({
 export default function AuthForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, signUp, resetPassword, loading } = useAuth();
+  const { signIn, signUp, resetPassword, loading, user } = useAuth();
   
   const isSignUp = location.pathname === '/signup';
   const [tab, setTab] = useState<string>(isSignUp ? 'signup' : 'signin');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  // Redirect to dashboard if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -65,11 +71,11 @@ export default function AuthForm() {
   });
 
   const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
-    await signUp(values.email, values.password, values.username);
+    await signUp(values.email, values.password, values.username, `${window.location.origin}/dashboard`);
   };
 
   const handleSignIn = async (values: z.infer<typeof signInSchema>) => {
-    await signIn(values.email, values.password);
+    await signIn(values.email, values.password, `${window.location.origin}/dashboard`);
   };
 
   const handleForgotPassword = async (values: z.infer<typeof forgotPasswordSchema>) => {

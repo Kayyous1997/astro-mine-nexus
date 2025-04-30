@@ -1,5 +1,5 @@
 
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -8,9 +8,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
   
   if (loading) {
-    // You could return a loading spinner here
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-blue"></div>
@@ -19,7 +19,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
   
   if (!user) {
-    return <Navigate to="/login" />;
+    // Store the attempted location for redirecting after login
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
   }
   
   return <>{children}</>;
