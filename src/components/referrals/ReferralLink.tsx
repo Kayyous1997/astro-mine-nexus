@@ -11,7 +11,7 @@ export default function ReferralLink() {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   
-  const referralLink = referralStats?.referral_url || "https://astromine.com/ref/loading...";
+  const referralLink = referralStats?.referral_url || "https://astro-mine-nexus.vercel.app/ref/loading...";
   
   const copyToClipboard = async () => {
     try {
