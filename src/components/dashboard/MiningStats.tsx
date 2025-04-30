@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { TrendingUp, Clock, BarChart2, Calendar } from "lucide-react";
+import { TrendingUp, Clock, BarChart2, Calendar, Wallet } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserData } from "@/hooks/useUserData";
@@ -100,10 +100,9 @@ export default function MiningStats() {
             value={`${userStats?.mining_rate.toFixed(3) || "0.010"}/hr`}
           />
           <StatCard 
-            icon={<Clock size={18} />}
-            label="Last Session"
-            value={recentSessions[0]?.tokens_earned.toFixed(3) || "0.000"}
-            subvalue={recentSessions[0] ? formatDuration(recentSessions[0].start_time, recentSessions[0].end_time) : "N/A"}
+            icon={<Wallet size={18} />}
+            label="Total Earnings"
+            value={userStats?.total_earnings.toFixed(2) || "0.00"}
           />
           <StatCard 
             icon={<Calendar size={18} />}
