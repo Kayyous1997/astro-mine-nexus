@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Edit2, Copy, Check, LogOut } from "lucide-react";
@@ -11,10 +10,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserData } from "@/hooks/useUserData";
 
 export default function UserProfile() {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { userStats, loading } = useUserData();
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  
+  console.log("Auth user:", user);
+  console.log("User stats:", userStats);
   
   const copyWalletAddress = async () => {
     if (!userStats?.user_id) return;
@@ -45,7 +47,7 @@ export default function UserProfile() {
     }
   };
 
-  if (loading) {
+  if (loading || !userStats) {
     return (
       <div className="max-w-3xl mx-auto">
         <Card className="bg-dark-card border-white/10">
@@ -73,11 +75,14 @@ export default function UserProfile() {
           </div>
           <div className="flex flex-col items-center">
             <Avatar className="h-24 w-24 mb-4 bg-dark-accent">
-              <AvatarImage src={userStats?.avatar_url || ""} />
-              <AvatarFallback className="text-2xl">{userStats?.username?.slice(0, 2).toUpperCase() || "??"}</AvatarFallback>
+              <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
+              <AvatarFallback className="text-2xl">
+                {user?.user_metadata?.username?.slice(0, 2).toUpperCase() || 
+                 user?.email?.slice(0, 2).toUpperCase() || "??"}
+              </AvatarFallback>
             </Avatar>
-            <CardTitle className="text-2xl">{userStats?.username}</CardTitle>
-            <CardDescription className="text-gray-400">Miner ID: {userStats?.user_id.slice(0, 8)}...</CardDescription>
+            <CardTitle className="text-2xl">{userStats?.username || user?.user_metadata?.username || user?.email?.split('@')[0]}</CardTitle>
+            <CardDescription className="text-gray-400">Miner ID: {userStats?.user_id?.slice(0, 8)}...</CardDescription>
             <div className="mt-2 text-xs text-gray-400">
               Member since {userStats ? new Date(userStats.created_at).toLocaleDateString('en-US', { 
                 year: 'numeric', 

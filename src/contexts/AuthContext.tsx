@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,31 +24,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for active session
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error);
-        setLoading(false);
-        return;
-      }
-
-      setSession(data.session);
-      setUser(data.session?.user || null);
-      setLoading(false);
-    };
-
-    getSession();
-
-    // Listen for auth changes
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
+        console.log('Auth state changed:', event);
         setSession(newSession);
         setUser(newSession?.user || null);
         setLoading(false);
       }
     );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log('Got session:', data.session ? 'yes' : 'no');
+      if (error) {
+        console.error('Error getting session:', error);
+      } else {
+        setSession(data.session);
+        setUser(data.session?.user || null);
+      }
+      setLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();

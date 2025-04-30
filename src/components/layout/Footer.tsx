@@ -1,5 +1,13 @@
 
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faTwitter, 
+  faFacebook, 
+  faDiscord, 
+  faTelegram, 
+  faGithub 
+} from '@fortawesome/free-brands-svg-icons';
 
 export default function Footer() {
   return (
@@ -46,10 +54,27 @@ export default function Footer() {
           <p className="text-xs text-gray-500">
             © {new Date().getFullYear()} AstroMine. All rights reserved.
           </p>
-          <div className="mt-4 md:mt-0 flex space-x-4">
-            <Link to="#" className="text-xs text-gray-500 hover:text-white transition-colors">Twitter</Link>
-            <Link to="#" className="text-xs text-gray-500 hover:text-white transition-colors">Discord</Link>
-            <Link to="#" className="text-xs text-gray-500 hover:text-white transition-colors">Telegram</Link>
+          <div className="mt-4 md:mt-0 flex space-x-6">
+            <Link to="#" className="text-gray-400 hover:text-cyber-blue transition-colors">
+              <FontAwesomeIcon icon={faTwitter} size="lg" />
+              <span className="sr-only">Twitter</span>
+            </Link>
+            <Link to="#" className="text-gray-400 hover:text-cyber-blue transition-colors">
+              <FontAwesomeIcon icon={faDiscord} size="lg" />
+              <span className="sr-only">Discord</span>
+            </Link>
+            <Link to="#" className="text-gray-400 hover:text-cyber-blue transition-colors">
+              <FontAwesomeIcon icon={faTelegram} size="lg" />
+              <span className="sr-only">Telegram</span>
+            </Link>
+            <Link to="#" className="text-gray-400 hover:text-cyber-blue transition-colors">
+              <FontAwesomeIcon icon={faFacebook} size="lg" />
+              <span className="sr-only">Facebook</span>
+            </Link>
+            <Link to="#" className="text-gray-400 hover:text-cyber-blue transition-colors">
+              <FontAwesomeIcon icon={faGithub} size="lg" />
+              <span className="sr-only">GitHub</span>
+            </Link>
           </div>
         </div>
       </div>
