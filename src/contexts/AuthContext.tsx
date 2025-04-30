@@ -87,12 +87,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string, redirectTo?: string) => {
     try {
       setLoading(true);
+      // Fix: Remove redirectTo from the options object as it's not a valid property
+      // for signInWithPassword method according to the TypeScript definition
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          redirectTo: redirectTo
-        }
+        password
       });
 
       if (error) throw error;
